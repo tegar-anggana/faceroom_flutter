@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyAttJZgRkMCXCGesc2Dl9ng9nUVF5mc8ec</string>
+	<key>GCM_SENDER_ID</key>
+	<string>425210410288</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.aplikasiCctv</string>
+	<key>PROJECT_ID</key>
+	<string>aplikasi-cctv</string>
+	<key>STORAGE_BUCKET</key>
+	<string>aplikasi-cctv.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:425210410288:ios:3713519ab692656d4084f5</string>
+</dict>
+</plist>

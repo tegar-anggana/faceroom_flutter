@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "425210410288",
+    "project_id": "aplikasi-cctv",
+    "storage_bucket": "aplikasi-cctv.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425210410288:android:631bf0f58f6697fa4084f5",
+        "android_client_info": {
+          "package_name": "com.example.aplikasi_cctv"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8tOfk9L_xUlxo8vgphNKn2zZUAaLU8cs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
