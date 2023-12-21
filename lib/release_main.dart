@@ -1,11 +1,10 @@
 import 'dart:io';
 
-// import 'package:dio/dio.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -39,10 +38,6 @@ class MyAppBody extends StatefulWidget {
 
 class _MyAppBodyState extends State<MyAppBody> {
   bool isLoading = false;
-  final TextEditingController rtspStreamingUrlController = 
-      TextEditingController(text: 'rtsp://192.168.100.6:8554/cam');
-  final TextEditingController apiEndpointController =
-      TextEditingController(text: 'http://192.168.100.6:5000/upload');
 
   @override
   Widget build(BuildContext context) {
@@ -50,23 +45,7 @@ class _MyAppBodyState extends State<MyAppBody> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30.0),
-            child: TextFormField(
-              controller: rtspStreamingUrlController,
-              decoration: const InputDecoration(labelText: 'RTSP Streaming URL'),
-            ),
-          ),
-          const SizedBox(height: 10.0),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30.0),
-            child: TextFormField(
-              controller: apiEndpointController,
-              decoration: const InputDecoration(labelText: 'API Endpoint URL'),
-            ),
-          ),
-          const SizedBox(height: 30.0),
-          OutlinedButton(
+          TextButton(
             onPressed: isLoading
                 ? null
                 : () async {
@@ -74,7 +53,7 @@ class _MyAppBodyState extends State<MyAppBody> {
                       isLoading = true;
                     });
 
-                    await captureAndProcessRTSP(rtspStreamingUrlController.text, apiEndpointController.text);
+                    await captureRTSP();
 
                     setState(() {
                       isLoading = false;
@@ -90,8 +69,10 @@ class _MyAppBodyState extends State<MyAppBody> {
   }
 }
 
-Future<void> captureAndProcessRTSP(String rtspUrl, String uploadUrl) async {
+Future<void> captureRTSP() async {
   const String basePath = '/storage/emulated/0/Download/';
+  const String rtspStreamingUrl =
+      'rtsp://192.168.100.6:8554/cam'; // Replace this with your RTSP streaming URL
 
   if (await Permission.storage.request().isGranted) {
     // Get the current timestamp as a string in the specified format
@@ -101,32 +82,34 @@ Future<void> captureAndProcessRTSP(String rtspUrl, String uploadUrl) async {
     String filePath = '$basePath$filename';
 
     String commandToExecute =
-        '-rtsp_transport tcp -i $rtspUrl -r 1 -f image2 $filePath';
+        '-rtsp_transport tcp -i $rtspStreamingUrl -r 1 -f image2 $filePath';
     await FFmpegKit.execute(commandToExecute).then((session) async {
       print('done');
       // Call the upload function with the image file
-      await uploadImage(File(filePath), uploadUrl);
+      await uploadImage(File(filePath));
     });
   } else if (await Permission.storage.isPermanentlyDenied) {
     openAppSettings();
   }
 }
 
-Future<void> uploadImage(File imageFile, String uploadUrl) async {
+Future<void> uploadImage(File imageFile) async {
   try {
-    var request = http.MultipartRequest('POST', Uri.parse(uploadUrl));
-    
-    // Add the image file to the request
-    var fileStream = http.ByteStream(imageFile.openRead());
-    var length = await imageFile.length();
-    var multipartFile = http.MultipartFile('image', fileStream, length, filename: imageFile.path.split("/").last);
-    request.files.add(multipartFile);
+    final dio = Dio();
 
-    // Send the request
-    var response = await http.Response.fromStream(await request.send());
+    // Prepare the form data
+    final formData = FormData.fromMap({
+      'image': await MultipartFile.fromFile(imageFile.path),
+    });
+
+    // Make the request
+    final response = await dio.post(
+      'http://192.168.100.6:5000/upload', // Replace with your actual API endpoint
+      data: formData,
+    );
 
     // Status & message response
-    print('status : ${response.statusCode} ${response.reasonPhrase}');
+    print('status : ${response.statusCode} ${response.statusMessage}');
   } catch (e) {
     print('Failed to upload image: $e');
   }

@@ -1,11 +1,10 @@
 import 'dart:io';
 
-// import 'package:dio/dio.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -92,6 +91,8 @@ class _MyAppBodyState extends State<MyAppBody> {
 
 Future<void> captureAndProcessRTSP(String rtspUrl, String uploadUrl) async {
   const String basePath = '/storage/emulated/0/Download/';
+  const String rtspStreamingUrl =
+      'rtsp://192.168.100.6:8554/cam'; // Replace this with your RTSP streaming URL
 
   if (await Permission.storage.request().isGranted) {
     // Get the current timestamp as a string in the specified format
@@ -114,19 +115,21 @@ Future<void> captureAndProcessRTSP(String rtspUrl, String uploadUrl) async {
 
 Future<void> uploadImage(File imageFile, String uploadUrl) async {
   try {
-    var request = http.MultipartRequest('POST', Uri.parse(uploadUrl));
-    
-    // Add the image file to the request
-    var fileStream = http.ByteStream(imageFile.openRead());
-    var length = await imageFile.length();
-    var multipartFile = http.MultipartFile('image', fileStream, length, filename: imageFile.path.split("/").last);
-    request.files.add(multipartFile);
+    final dio = Dio();
 
-    // Send the request
-    var response = await http.Response.fromStream(await request.send());
+    // Prepare the form data
+    final formData = FormData.fromMap({
+      'image': await MultipartFile.fromFile(imageFile.path),
+    });
+
+    // Make the request
+    final response = await dio.post(
+      uploadUrl, // Replace with your actual API endpoint
+      data: formData,
+    );
 
     // Status & message response
-    print('status : ${response.statusCode} ${response.reasonPhrase}');
+    print('status : ${response.statusCode} ${response.statusMessage}');
   } catch (e) {
     print('Failed to upload image: $e');
   }
